@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: formulario_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: formulario_db
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - formulario_network
+
+  app:
+    build: .
+    container_name: formulario_app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/formulario_db?authSource=admin
+    networks:
+      - formulario_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  formulario_network:
+    driver: bridge

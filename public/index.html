@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Contacto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">
+                <span class="title-icon">📝</span>
+                Formulario de Contacto
+            </h1>
+            <p class="subtitle">Completa el formulario y te contactaremos pronto</p>
+        </header>
+
+        <!-- Formulario Principal -->
+        <main class="main-content">
+            <form id="contactForm" class="form" novalidate>
+                <!-- Campo Nombre -->
+                <div class="form-group">
+                    <label for="nombre" class="form-label">
+                        <span class="label-text">Nombre completo</span>
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="nombre" 
+                            name="nombre" 
+                            class="form-input"
+                            placeholder="Ingresa tu nombre completo"
+                            required
+                            minlength="2"
+                            maxlength="50"
+                        >
+                        <span class="input-icon">👤</span>
+                    </div>
+                    <span class="error-message" id="nombre-error"></span>
+                </div>
+
+                <!-- Campo Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <span class="label-text">Correo electrónico</span>
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="form-input"
+                            placeholder="ejemplo@correo.com"
+                            required
+                        >
+                        <span class="input-icon">📧</span>
+                    </div>
+                    <span class="error-message" id="email-error"></span>
+                </div>
+
+                <!-- Campo Teléfono -->
+                <div class="form-group">
+                    <label for="telefono" class="form-label">
+                        <span class="label-text">Teléfono</span>
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="tel" 
+                            id="telefono" 
+                            name="telefono" 
+                            class="form-input"
+                            placeholder="+1 234 567 8900"
+                            required
+                        >
+                        <span class="input-icon">📱</span>
+                    </div>
+                    <span class="error-message" id="telefono-error"></span>
+                </div>
+
+                <!-- Campo Mensaje -->
+                <div class="form-group">
+                    <label for="mensaje" class="form-label">
+                        <span class="label-text">Mensaje</span>
+                        <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="mensaje" 
+                            name="mensaje" 
+                            class="form-input form-textarea"
+                            placeholder="Cuéntanos cómo podemos ayudarte..."
+                            required
+                            minlength="10"
+                            maxlength="500"
+                            rows="5"
+                        ></textarea>
+                        <span class="input-icon textarea-icon">💬</span>
+                    </div>
+                    <span class="error-message" id="mensaje-error"></span>
+                    <div class="character-count">
+                        <span id="mensaje-count">0</span>/500 caracteres
+                    </div>
+                </div>
+
+                <!-- Botón de envío -->
+                <div class="form-group">
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="btn-text">Enviar mensaje</span>
+                        <span class="btn-icon">✨</span>
+                        <div class="btn-loader" id="btnLoader"></div>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Mensaje de resultado -->
+            <div class="result-message" id="resultMessage" style="display: none;">
+                <div class="result-content">
+                    <span class="result-icon" id="resultIcon"></span>
+                    <p class="result-text" id="resultText"></p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>💡 Todos los campos marcados con * son obligatorios</p>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
