@@ -6,6 +6,13 @@ const resultIcon = document.getElementById('resultIcon');
 const resultText = document.getElementById('resultText');
 const mensajeCount = document.getElementById('mensaje-count');
 
+// Elementos de la sección de datos
+const refreshBtn = document.getElementById('refreshBtn');
+const dataLoading = document.getElementById('dataLoading');
+const dataList = document.getElementById('dataList');
+const totalCount = document.getElementById('totalCount');
+const todayCount = document.getElementById('todayCount');
+
 // Campos del formulario
 const campos = {
     nombre: document.getElementById('nombre'),
@@ -41,6 +48,9 @@ let validacion = {
 document.addEventListener('DOMContentLoaded', function() {
     inicializarEventListeners();
     actualizarContadorCaracteres();
+    cargarDatos(); // Cargar datos al iniciar
+    configurarActualizacionAutomatica();
+    detectarModoDemo();
 });
 
 function inicializarEventListeners() {
@@ -56,6 +66,11 @@ function inicializarEventListeners() {
 
     // Envío del formulario
     form.addEventListener('submit', manejarEnvioFormulario);
+
+    // Botón de actualizar datos
+    refreshBtn.addEventListener('click', () => {
+        cargarDatos(true);
+    });
 
     // Efectos visuales
     Object.values(campos).forEach(campo => {
@@ -230,6 +245,9 @@ async function manejarEnvioFormulario(e) {
             // Confetti effect
             crearEfectoConfetti();
             
+            // Actualizar la lista de datos
+            setTimeout(() => cargarDatos(), 1000);
+            
         } else {
             const errores = resultado.errors || ['Error desconocido'];
             mostrarMensaje(errores.join(', '), 'error');
@@ -348,3 +366,216 @@ form.addEventListener('submit', function(e) {
         enviando = false;
     }, 3000);
 });
+
+// === FUNCIONES PARA MANEJO DE DATOS ===
+
+// Cargar datos desde el servidor
+async function cargarDatos(mostrarLoading = false) {
+    if (mostrarLoading) {
+        mostrarCargandoDatos(true);
+        refreshBtn.classList.add('loading');
+    }
+
+    try {
+        const response = await fetch('/formularios?limit=20&page=1');
+        const resultado = await response.json();
+
+        if (response.ok && resultado.success) {
+            mostrarDatos(resultado.data);
+            actualizarEstadisticas(resultado.data, resultado.pagination.totalItems);
+        } else {
+            mostrarErrorDatos('Error al cargar los datos');
+        }
+
+    } catch (error) {
+        console.error('Error al cargar datos:', error);
+        mostrarErrorDatos('Error de conexión al cargar datos');
+    } finally {
+        mostrarCargandoDatos(false);
+        refreshBtn.classList.remove('loading');
+    }
+}
+
+// Mostrar/ocultar indicador de carga
+function mostrarCargandoDatos(mostrar) {
+    if (mostrar) {
+        dataLoading.style.display = 'block';
+        dataList.style.display = 'none';
+    } else {
+        dataLoading.style.display = 'none';
+        dataList.style.display = 'block';
+    }
+}
+
+// Mostrar los datos en la lista
+function mostrarDatos(datos) {
+    if (!datos || datos.length === 0) {
+        dataList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <div class="empty-message">No hay datos aún</div>
+                <div class="empty-subtitle">Los formularios enviados aparecerán aquí</div>
+            </div>
+        `;
+        return;
+    }
+
+    const htmlDatos = datos.map((item, index) => `
+        <div class="data-item ${index === 0 ? 'new' : ''}" style="animation-delay: ${index * 0.1}s">
+            <div class="item-header">
+                <div class="item-name">${escaparHTML(item.nombre)}</div>
+                <div class="item-time">${formatearFecha(item.fechaCreacion)}</div>
+            </div>
+            <div class="item-details">
+                <div class="item-email">📧 ${escaparHTML(item.email)}</div>
+                <div class="item-phone">📱 ${escaparHTML(item.telefono)}</div>
+            </div>
+            <div class="item-message">${escaparHTML(item.mensaje)}</div>
+        </div>
+    `).join('');
+
+    dataList.innerHTML = htmlDatos;
+}
+
+// Mostrar error al cargar datos
+function mostrarErrorDatos(mensaje) {
+    dataList.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-icon">❌</div>
+            <div class="empty-message">Error al cargar datos</div>
+            <div class="empty-subtitle">${mensaje}</div>
+        </div>
+    `;
+}
+
+// Actualizar estadísticas
+function actualizarEstadisticas(datos, total) {
+    totalCount.textContent = total || 0;
+    
+    // Contar los de hoy
+    const hoy = new Date().toDateString();
+    const hoyCount = datos.filter(item => {
+        const fechaItem = new Date(item.fechaCreacion).toDateString();
+        return fechaItem === hoy;
+    }).length;
+    
+    todayCount.textContent = hoyCount;
+    
+    // Animar los números
+    animarNumero(totalCount);
+    animarNumero(todayCount);
+}
+
+// Animar cambio de números
+function animarNumero(elemento) {
+    elemento.style.transform = 'scale(1.2)';
+    elemento.style.color = 'var(--primary-color)';
+    
+    setTimeout(() => {
+        elemento.style.transform = 'scale(1)';
+        elemento.style.color = '';
+    }, 300);
+}
+
+// Formatear fecha para mostrar
+function formatearFecha(fechaISO) {
+    const fecha = new Date(fechaISO);
+    const ahora = new Date();
+    const diffMs = ahora - fecha;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) {
+        return 'Ahora';
+    } else if (diffMins < 60) {
+        return `${diffMins}m`;
+    } else if (diffHours < 24) {
+        return `${diffHours}h`;
+    } else if (diffDays < 7) {
+        return `${diffDays}d`;
+    } else {
+        return fecha.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit'
+        });
+    }
+}
+
+// Escapar HTML para seguridad
+function escaparHTML(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto;
+    return div.innerHTML;
+}
+
+// Configurar actualización automática cada 30 segundos
+function configurarActualizacionAutomatica() {
+    setInterval(() => {
+        cargarDatos(false); // Actualizar sin mostrar loading
+    }, 30000);
+}
+
+// Remover la clase 'new' después de un tiempo
+setInterval(() => {
+    document.querySelectorAll('.data-item.new').forEach(item => {
+        item.classList.remove('new');
+    });
+}, 5000);
+
+// === FUNCIONES PARA MODO DEMO ===
+
+// Detectar si estamos en modo demo (Vercel)
+function detectarModoDemo() {
+    // Verificar si estamos en un dominio de Vercel o si hay indicadores de demo
+    const esVercel = window.location.hostname.includes('vercel.app') || 
+                     window.location.hostname.includes('vercel.com') ||
+                     window.location.hostname.includes('.vercel.app');
+    
+    if (esVercel) {
+        mostrarBannerDemo();
+    }
+}
+
+// Mostrar banner de demo
+function mostrarBannerDemo() {
+    const banner = document.getElementById('demoBanner');
+    const container = document.querySelector('.container');
+    
+    if (banner && container) {
+        banner.style.display = 'block';
+        document.body.classList.add('demo-active');
+        
+        // Auto-ocultar después de 10 segundos
+        setTimeout(() => {
+            closeDemoBanner();
+        }, 10000);
+    }
+}
+
+// Cerrar banner de demo
+function closeDemoBanner() {
+    const banner = document.getElementById('demoBanner');
+    const body = document.body;
+    
+    if (banner) {
+        banner.style.animation = 'slideUp 0.5s ease-out forwards';
+        setTimeout(() => {
+            banner.style.display = 'none';
+            body.classList.remove('demo-active');
+        }, 500);
+    }
+}
+
+// Agregar animación de salida
+const slideUpKeyframes = `
+@keyframes slideUp {
+    from { transform: translateY(0); }
+    to { transform: translateY(-100%); }
+}
+`;
+
+// Agregar la animación al documento
+const styleSheet = document.createElement('style');
+styleSheet.textContent = slideUpKeyframes;
+document.head.appendChild(styleSheet);

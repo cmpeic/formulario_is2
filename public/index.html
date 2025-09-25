@@ -11,6 +11,18 @@
 </head>
 <body>
     <div class="container">
+        <!-- Banner Demo (solo visible en Vercel) -->
+        <div class="demo-banner" id="demoBanner" style="display: none;">
+            <div class="demo-content">
+                <span class="demo-icon">🚀</span>
+                <div class="demo-text">
+                    <strong>Modo Demo</strong> - Esta es una demostración del formulario. 
+                    Los datos no se guardan realmente.
+                </div>
+                <button class="demo-close" onclick="closeDemoBanner()">×</button>
+            </div>
+        </div>
+
         <!-- Header -->
         <header class="header">
             <h1 class="title">
@@ -20,8 +32,11 @@
             <p class="subtitle">Completa el formulario y te contactaremos pronto</p>
         </header>
 
-        <!-- Formulario Principal -->
+        <!-- Contenido Principal con Layout de 2 columnas -->
         <main class="main-content">
+            <div class="content-grid">
+                <!-- Columna del Formulario -->
+                <section class="form-section">
             <form id="contactForm" class="form" novalidate>
                 <!-- Campo Nombre -->
                 <div class="form-group">
@@ -120,12 +135,48 @@
                 </div>
             </form>
 
-            <!-- Mensaje de resultado -->
-            <div class="result-message" id="resultMessage" style="display: none;">
-                <div class="result-content">
-                    <span class="result-icon" id="resultIcon"></span>
-                    <p class="result-text" id="resultText"></p>
-                </div>
+                    <!-- Mensaje de resultado -->
+                    <div class="result-message" id="resultMessage" style="display: none;">
+                        <div class="result-content">
+                            <span class="result-icon" id="resultIcon"></span>
+                            <p class="result-text" id="resultText"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Columna de Datos Guardados -->
+                <section class="data-section">
+                    <div class="data-header">
+                        <h2 class="data-title">
+                            <span class="data-icon">📊</span>
+                            Datos Guardados
+                        </h2>
+                        <button id="refreshBtn" class="refresh-btn" title="Actualizar datos">
+                            <span class="refresh-icon">🔄</span>
+                        </button>
+                    </div>
+                    
+                    <div class="data-stats">
+                        <div class="stat-card">
+                            <span class="stat-number" id="totalCount">0</span>
+                            <span class="stat-label">Total</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-number" id="todayCount">0</span>
+                            <span class="stat-label">Hoy</span>
+                        </div>
+                    </div>
+
+                    <div class="data-list-container">
+                        <div class="data-loading" id="dataLoading" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            <p>Cargando datos...</p>
+                        </div>
+                        <div class="data-list" id="dataList">
+                            <!-- Los datos se cargarán aquí dinámicamente -->
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
 
